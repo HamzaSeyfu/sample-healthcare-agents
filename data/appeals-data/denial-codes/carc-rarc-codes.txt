@@ -1,0 +1,114 @@
+Code: CARC 1
+Type: Denial Reason
+Description: Deductible Amount. Amount applied to patient deductible.
+Appeal Strategy: Verify deductible accumulation; request updated accumulators from payer.
+Evidence: EOB showing prior payments, deductible tracking.
+
+---
+
+Code: CARC 2
+Type: Denial Reason
+Description: Coinsurance Amount. Amount applied to patient coinsurance.
+Appeal Strategy: Verify plan coinsurance percentage; check if service is in-network.
+Evidence: Plan benefit summary, provider network status.
+
+---
+
+Code: CARC 4
+Type: Denial Reason
+Description: Procedure code inconsistent with modifier used.
+Appeal Strategy: Correct modifier and resubmit with documentation of medical necessity for modifier.
+Evidence: Operative report, clinical notes supporting modifier use.
+
+---
+
+Code: CARC 16
+Type: Denial Reason
+Description: Claim lacks information needed for adjudication.
+Appeal Strategy: Identify missing fields from ERA/835; resubmit with complete information.
+Evidence: Corrected claim form with all required fields.
+
+---
+
+Code: CARC 18
+Type: Denial Reason
+Description: Exact duplicate claim detected.
+Appeal Strategy: If not a true duplicate, submit with documentation showing distinct services.
+Evidence: Medical records showing separate encounters, distinct dates/times of service.
+
+---
+
+Code: CARC 29
+Type: Denial Reason
+Description: Timely filing limit expired.
+Appeal Strategy: Document original submission date; provide proof of timely filing or extenuating circumstances.
+Evidence: Original claim submission confirmation, clearinghouse reports.
+
+---
+
+Code: CARC 50
+Type: Denial Reason - Medical Necessity
+Description: Non-covered service; not deemed medically necessary.
+Appeal Strategy: Submit peer-reviewed literature, clinical guidelines, and detailed clinical notes.
+Evidence: Clinical notes, lab results, imaging, peer-reviewed studies, letter of medical necessity.
+Escalation: Request peer-to-peer review with payer medical director.
+
+---
+
+Code: CARC 96
+Type: Denial Reason
+Description: Non-covered charge. Service not covered under patient benefit plan.
+Appeal Strategy: Review plan documents for coverage; check for alternative benefit categories.
+Evidence: Plan benefit summary, clinical documentation supporting medical necessity.
+
+---
+
+Code: CARC 97
+Type: Denial Reason
+Description: Service bundled with another procedure.
+Appeal Strategy: Submit modifier 59 or XE/XS/XP/XU with documentation of distinct service.
+Evidence: Operative report showing separate procedure, distinct anatomical site documentation.
+
+---
+
+Code: CARC 197
+Type: Denial Reason - Prior Authorization
+Description: Prior authorization absent.
+Appeal Strategy: Submit retroactive authorization request; document emergency/urgent circumstances.
+Evidence: Clinical notes showing urgency, emergency department records.
+
+---
+
+Code: CARC 198
+Type: Denial Reason - Prior Authorization
+Description: Prior authorization exceeded authorized quantity or scope.
+Appeal Strategy: Request authorization extension; document medical necessity for additional services.
+Evidence: Original authorization, clinical notes supporting additional services.
+
+---
+
+Code: RARC N30
+Type: Remark Code
+Description: Patient ineligible for this service. Used with CARC 96.
+Appeal Action: Verify eligibility; obtain updated eligibility verification.
+
+---
+
+Code: RARC N56
+Type: Remark Code
+Description: Procedure code billed is not correct. Used with CARC 4.
+Appeal Action: Review coding; submit corrected claim with proper CPT/HCPCS.
+
+---
+
+Code: RARC N115
+Type: Remark Code
+Description: Decision based on National Coverage Determination (NCD).
+Appeal Action: Review specific NCD; document how patient meets NCD criteria.
+
+---
+
+Code: RARC N386
+Type: Remark Code
+Description: Decision based on Local Coverage Determination (LCD).
+Appeal Action: Review specific LCD; document compliance with LCD criteria.

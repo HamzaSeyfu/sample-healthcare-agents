@@ -1,0 +1,75 @@
+Payer: Medicare
+Rule: NPI Required
+Description: NPI required for all providers. Taxonomy code must match specialty. Medicare Beneficiary Identifier (MBI) required, not SSN.
+
+---
+
+Payer: Medicare
+Rule: Timely Filing
+Description: Claims must be filed within 1 year of date of service.
+
+---
+
+Payer: Medicare
+Rule: Prior Authorization
+Description: Prior authorization required when applicable. Authorization number in REF segment of Loop 2300.
+
+---
+
+Payer: Medicaid
+Rule: State-Specific Requirements
+Description: State-specific Medicaid ID required. Timely filing varies by state (typically 90-365 days). Prior auth required for many services.
+
+---
+
+Payer: Medicaid
+Rule: Coordination of Benefits
+Description: Coordination of benefits information required if other insurance exists. Patient relationship to subscriber required.
+
+---
+
+Payer: Blue Cross Blue Shield
+Rule: Required Fields
+Description: NPI, Tax ID (EIN), group number, member ID required. Timely filing: 180 days. Prior auth number when applicable.
+
+---
+
+Payer: Blue Cross Blue Shield
+Rule: Modifiers
+Description: Modifier usage per BCBS guidelines. Service facility NPI required. Referring provider information when required.
+
+---
+
+Payer: UnitedHealthcare
+Rule: Required Fields
+Description: NPI for billing and rendering, Tax ID, member ID, group number required. Timely filing: 180 days from date of service.
+
+---
+
+Payer: UnitedHealthcare
+Rule: Diagnosis Codes
+Description: ICD-10-CM required, up to 12 diagnosis codes. Prior authorization reference number required when applicable.
+
+---
+
+Payer: Aetna
+Rule: Required Fields
+Description: NPI for all providers, Tax ID for billing entity, member ID required. Timely filing: 180 days. Prior auth when required.
+
+---
+
+Payer: Aetna
+Rule: Rendering Provider
+Description: Rendering provider information required. Service facility NPI required. Modifier usage per Aetna guidelines.
+
+---
+
+Payer: Cigna
+Rule: Required Fields
+Description: NPI for billing and rendering, Tax ID, member ID, group number required. Timely filing: 180 days.
+
+---
+
+Payer: All Payers
+Rule: Common Required Fields
+Description: Patient demographics (name, DOB, gender, address), subscriber info, provider NPI/name/address, service dates, diagnoses, procedures, charges.

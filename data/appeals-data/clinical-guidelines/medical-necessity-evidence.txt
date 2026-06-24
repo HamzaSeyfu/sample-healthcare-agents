@@ -1,0 +1,73 @@
+Criteria: InterQual
+Type: Medical Necessity Framework
+Description: Evidence-based clinical criteria used by many commercial payers. Covers acute care, procedures, imaging, DME, rehabilitation.
+Appeal Strategy: Document how patient meets each InterQual criterion including severity of illness and intensity of service.
+
+---
+
+Criteria: MCG (Milliman Care Guidelines)
+Type: Medical Necessity Framework
+Description: Evidence-based guidelines covering inpatient, outpatient, ambulatory, recovery. Used by payers for utilization review.
+Appeal Strategy: Map clinical findings to specific MCG criteria. Document clinical indications and alternatives tried.
+
+---
+
+Service: Advanced Imaging (MRI, CT, PET)
+Type: Clinical Evidence Requirements
+Required Evidence: Failed conservative treatment (duration and type), physical exam findings, prior imaging results, functional limitations.
+Guidelines: ACR Appropriateness Criteria, AAN neurological imaging guidelines.
+
+---
+
+Service: Joint Replacement Surgery
+Type: Clinical Evidence Requirements
+Required Evidence: Duration of symptoms (3-6 months minimum), failed conservative treatments (PT, NSAIDs, injections), functional limitation scores (WOMAC, KOOS, Harris Hip).
+Guidelines: AAOS Clinical Practice Guidelines, ACR/AAHKS guidelines.
+
+---
+
+Service: Spinal Surgery
+Type: Clinical Evidence Requirements
+Required Evidence: Symptoms 6-12 weeks minimum, failed PT/medications/injections, neurological exam findings, MRI showing nerve compression.
+Guidelines: NASS Clinical Guidelines, AAN lumbar disc herniation guidelines.
+
+---
+
+Service: Specialty Medications (Biologics)
+Type: Clinical Evidence Requirements
+Required Evidence: Diagnosis confirmation, failed conventional therapy (drug/dose/duration), step therapy compliance, disease activity scores (DAS28, CDAI, PASI).
+Guidelines: ACR RA guidelines, AGA IBD guidelines, AAD psoriasis guidelines.
+
+---
+
+Service: Inpatient Admission
+Type: Clinical Evidence Requirements
+Required Evidence: Severity of illness indicators (vitals, labs), intensity of service requirements (IV medications), risk of adverse outcome, failed outpatient management.
+Guidelines: InterQual Acute Criteria, MCG Inpatient Criteria, CMS Two-Midnight Rule.
+
+---
+
+Service: Rehabilitation (PT/OT/Speech)
+Type: Clinical Evidence Requirements
+Required Evidence: Functional baseline with validated measures (FIM, TUG, Berg Balance), measurable goals with timeframes, skilled care justification.
+Guidelines: APTA Clinical Practice Guidelines, CMS Improvement Standard (Jimmo v. Sebelius).
+
+---
+
+Service: Durable Medical Equipment (DME)
+Type: Clinical Evidence Requirements
+Required Evidence: Diagnosis supporting necessity, functional limitation, face-to-face encounter documentation, prescription with specific equipment details.
+Guidelines: Medicare LCD for DME categories, CMS DME face-to-face requirements.
+
+---
+
+Process: Peer-to-Peer Review Preparation
+Type: Appeal Process
+Description: Before call: review complete medical record, prepare 2-3 minute clinical summary, identify criteria patient meets, have guidelines ready.
+During call: address each denial reason specifically, reference guidelines by name, document reviewer name and decision.
+
+---
+
+Process: Peer-to-Peer Review Outcome
+Type: Appeal Process
+Description: Document call details in patient record. If denied, request written denial with specific criteria not met. Proceed to formal written appeal if peer-to-peer unsuccessful.

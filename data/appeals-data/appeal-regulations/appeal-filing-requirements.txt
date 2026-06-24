@@ -1,0 +1,105 @@
+Regulation: ERISA Internal Appeal
+Type: Federal
+Description: Group health plans. Internal appeal must be filed within 180 days of denial. Decision: 30 days pre-service, 60 days post-service.
+
+---
+
+Regulation: ERISA Urgent Care Appeal
+Type: Federal
+Description: Expedited review available. Decision within 72 hours. For urgent/emergent situations requiring immediate action.
+
+---
+
+Regulation: ERISA External Review
+Type: Federal
+Description: Available after exhausting internal appeals. File within 4 months of final internal denial. Decision: 45 days standard, 72 hours expedited.
+
+---
+
+Regulation: ACA External Review
+Type: Federal
+Description: External review via accredited IRO. Payer covers cost. Applies to non-grandfathered individual and group plans. Minimum two internal appeal levels required.
+
+---
+
+Regulation: Medicare Level 1 - Redetermination
+Type: Medicare
+Description: File within 120 days of initial determination. MAC decision within 60 days.
+
+---
+
+Regulation: Medicare Level 2 - Reconsideration
+Type: Medicare
+Description: File within 180 days of redetermination. QIC decision within 60 days.
+
+---
+
+Regulation: Medicare Level 3 - ALJ Hearing
+Type: Medicare
+Description: File within 60 days of reconsideration. Amount in controversy threshold required ($180 for 2025).
+
+---
+
+Regulation: Medicare Level 4 - Council Review
+Type: Medicare
+Description: File within 60 days of ALJ decision. Medicare Appeals Council review.
+
+---
+
+Regulation: Medicare Level 5 - Federal Court
+Type: Medicare
+Description: File within 60 days of Council decision. Amount in controversy threshold ($1,840 for 2025).
+
+---
+
+Regulation: Medicaid Fair Hearing
+Type: Medicaid
+Description: File within 30-90 days of denial (varies by state). Decision within 90 days (3 days expedited). Continuation of benefits if filed within 10 days.
+
+---
+
+Payer: Blue Cross Blue Shield
+Rule: First Level Appeal
+Description: File within 180 days of denial. Decision: 30 days pre-service, 60 days post-service. Submit to address on EOB with member ID and claim number.
+
+---
+
+Payer: Blue Cross Blue Shield
+Rule: Second Level Appeal
+Description: File within 60 days of first level denial. Decision within 30 days. Independent medical review may be requested.
+
+---
+
+Payer: UnitedHealthcare
+Rule: Peer-to-Peer Review
+Description: Request within 10 business days of denial. Conducted between treating physician and UHC medical director. Must precede formal appeal.
+
+---
+
+Payer: UnitedHealthcare
+Rule: Appeal Deadlines
+Description: First level: 180 days. Second level: 60 days. Decision: 30 days pre-service, 60 days post-service.
+
+---
+
+Payer: Aetna
+Rule: Appeal Process
+Description: First level: 180 days. Expedited: 72-hour turnaround for urgent cases. Peer-to-peer available within 10 business days of denial.
+
+---
+
+Payer: Cigna
+Rule: Appeal Process
+Description: First level: 180 days. External review after exhausting internal appeals (file within 4 months). Decision within 30 days.
+
+---
+
+Rule: Required Appeal Letter Components
+Type: All Payers
+Description: Must include: patient demographics, claim reference, provider info, denial reference, clinical rationale, supporting documentation list, physician signature.
+
+---
+
+Rule: Appeal Best Practices
+Type: All Payers
+Description: Reference specific plan language. Cite peer-reviewed literature and clinical guidelines. Address each denial reason individually. Send via certified mail or trackable submission.

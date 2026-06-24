@@ -1,0 +1,42 @@
+stack_name_base: healthcare-agents-stack
+
+# Optional: Set to automatically create an admin user and email credentials
+# If not provided, you'll need to manually create users via AWS Console
+admin_user_email: null # Example: admin@example.com
+
+backend:
+  # MULTIPLE PATTERN DEPLOYMENT
+  # Deploy multiple agent patterns as separate backend stacks
+  # Each pattern gets its own AgentCore Runtime, Memory, and Gateway tools
+  # All patterns share the same Cognito authentication and Amplify frontend
+  patterns:
+    - pattern: prior-authorization-agent
+      deployment_type: docker
+      enabled: true
+    - pattern: eligibility-verification-agent
+      deployment_type: docker
+      enabled: true
+    - pattern: medical-coding-agent
+      deployment_type: docker
+      enabled: true
+    - pattern: claims-assembly-agent
+      deployment_type: docker
+      enabled: true
+    - pattern: claims-submission-agent
+      deployment_type: docker
+      enabled: true
+    - pattern: appeals-agent
+      deployment_type: docker
+      enabled: true
+
+  # LEGACY SINGLE PATTERN DEPLOYMENT (deprecated, for backward compatibility)
+  # Use 'patterns' array above instead for new deployments
+  # pattern: medical-coding-agent # Available patterns: medical-coding-agent, claims-assembly-agent, claims-submission-agent, appeals-agent, prior-authorization-agent, eligibility-verification-agent
+  # deployment_type: zip # Available deployment types: docker (default), zip
+
+  # HealthLake Tools Configuration (always deployed for all patterns)
+  # Provides 7 patient EHR tools: conditions, medications, observations, allergies, appointments, search, everything
+  healthlake:
+    read_only_mode: true # Read-only mode (blocks write operations)
+    region: us-east-1 # AWS region where HealthLake datastore is located
+    datastore_id: 'YOUR_HEALTHLAKE_DATASTORE_ID' # Set to your HealthLake FHIR datastore ID (e.g. created during setup)

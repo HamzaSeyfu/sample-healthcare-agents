@@ -1,0 +1,75 @@
+Rule: Transaction Version
+Type: HIPAA 5010 Compliance
+Description: EDI 837P must follow version 005010X222A1. Implementation Guide: ASC X12N 837. Acknowledgment via 999.
+
+---
+
+Rule: Required Data Elements
+Type: HIPAA 5010 Compliance
+Description: Required: submitter ID, receiver ID, transaction control number, subscriber info, billing provider NPI/name/address/tax ID.
+
+---
+
+Rule: Diagnosis Code Standard
+Type: HIPAA 5010 Compliance
+Description: ICD-10-CM required (effective October 1, 2015). Minimum 1, maximum 12 codes. Must be valid and current year.
+
+---
+
+Rule: Procedure Code Standard
+Type: HIPAA 5010 Compliance
+Description: CPT (5 digits) or HCPCS Level II (5 alphanumeric) required per service line. Must be updated annually.
+
+---
+
+Rule: NPI Requirement
+Type: HIPAA 5010 Compliance
+Description: NPI (10 digits) required for billing and rendering providers. Must be active in NPPES registry.
+
+---
+
+Rule: Date Format Standard
+Type: HIPAA 5010 Compliance
+Description: All dates must use CCYYMMDD format. Service date must not be future. Must be within coverage period.
+
+---
+
+Rule: PHI Encryption
+Type: HIPAA Security
+Description: Protected Health Information must be encrypted in transit and at rest. Business Associate Agreements required for third-party processors.
+
+---
+
+Rule: Audit Trail
+Type: HIPAA Security
+Description: Audit trails required for all claim submissions and modifications. Minimum 6-year retention for claim records.
+
+---
+
+Rule: Minimum Necessary Standard
+Type: HIPAA Privacy
+Description: Only minimum necessary PHI disclosed per transaction. Patient authorization required for non-TPO uses.
+
+---
+
+Rule: Breach Notification
+Type: HIPAA Privacy
+Description: Breach notification procedures must be in place. Accounting of disclosures maintained. Access controls on claim data.
+
+---
+
+Rule: No Leading/Trailing Spaces
+Type: Data Quality
+Description: No leading or trailing spaces in data fields. Uppercase for text fields. Consistent identifiers throughout claim.
+
+---
+
+Rule: Phone and ZIP Format
+Type: Data Quality
+Description: Phone: XXX-XXX-XXXX. ZIP: XXXXX or XXXXX-XXXX. State: 2-character postal abbreviation.
+
+---
+
+Rule: Common Rejection Causes
+Type: Validation
+Description: Invalid NPI, missing diagnosis/procedure codes, service date outside coverage, duplicate claim, missing prior authorization, invalid place of service.
