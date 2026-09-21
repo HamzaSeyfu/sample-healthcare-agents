@@ -1,0 +1,29 @@
+name: Prior Auth Reliability Gates
+
+on:
+  pull_request:
+    paths:
+      - 'patterns/prior-authorization-agent/**'
+  push:
+    branches:
+      - feature/prior-auth-reliability-gates
+    paths:
+      - 'patterns/prior-authorization-agent/**'
+
+jobs:
+  reliability-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: pip install pytest
+      - name: Run reliability gate tests
+        run: |
+          pytest -q \
+            patterns/prior-authorization-agent/tests/test_reliability_gate.py \
+            patterns/prior-authorization-agent/tests/test_reliability_benchmark.py
+      - name: Print benchmark report
+        run: python patterns/prior-authorization-agent/tests/benchmark_reliability.py
