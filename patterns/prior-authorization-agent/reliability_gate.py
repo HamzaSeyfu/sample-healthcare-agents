@@ -48,6 +48,7 @@ def assess_reliability(
     required_fields: Iterable[str],
     conflict_flags: Iterable[str] = (),
     min_score: float = 0.80,
+    min_field_confidence: float = 0.70,
 ) -> ReliabilityAssessment:
     """Assess whether a prior-auth case should be automated or escalated.
 
@@ -74,6 +75,7 @@ def assess_reliability(
 
     confidence_values = []
     corroboration_values = []
+    low_confidence_fields = []
 
     for field in required:
         item = by_field.get(field, {})
@@ -83,6 +85,8 @@ def assess_reliability(
         confidence = float(item.get("confidence", 0.0))
         confidence = max(0.0, min(1.0, confidence))
         confidence_values.append(confidence)
+        if confidence < min_field_confidence:
+            low_confidence_fields.append(field)
 
         source_count = int(item.get("source_count", 1))
         corroboration_values.append(1.0 if source_count >= 2 else 0.5)
@@ -116,12 +120,21 @@ def assess_reliability(
         reasons.append(
             "Critical reliability flags: " + ", ".join(critical_flags)
         )
+    if low_confidence_fields:
+        reasons.append(
+            "Low-confidence critical evidence: " + ", ".join(sorted(low_confidence_fields))
+        )
     if score < min_score:
         reasons.append(
             f"Reliability score {score:.2f} is below threshold {min_score:.2f}"
         )
 
-    safe = not critical_missing and not critical_flags and score >= min_score
+    safe = (
+        not critical_missing
+        and not critical_flags
+        and not low_confidence_fields
+        and score >= min_score
+    )
 
     if safe:
         reasons.append("Evidence quality is sufficient for automated decisioning")
