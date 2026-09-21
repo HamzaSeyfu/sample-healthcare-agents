@@ -33,6 +33,7 @@ from strands.tools.mcp import MCPClient
 
 from claim_bundle_builder import ClaimBundleBuilder, Coding, ServiceItem
 from claim_response_generator import ClaimResponseGenerator
+from reliability_gate import assess_reliability
 
 app = BedrockAgentCoreApp()
 
@@ -169,6 +170,30 @@ def generate_claim_response(
     )
 
 
+@tool
+def assess_decision_reliability(
+    evidence_items: list[dict],
+    required_fields: list[str],
+    conflict_flags: list[str] | None = None,
+    min_score: float = 0.80,
+) -> dict:
+    """Assess whether evidence is reliable enough for automated decisioning.
+
+    Call this tool immediately before generating a ClaimResponse. The tool
+    applies deterministic quality gates to evidence completeness, confidence,
+    corroboration, and critical conflict flags.
+
+    If safe_to_auto_decide is false, the authorization must be pended for
+    human review rather than automatically approved or denied.
+    """
+    return assess_reliability(
+        evidence_items=evidence_items,
+        required_fields=required_fields,
+        conflict_flags=conflict_flags or [],
+        min_score=min_score,
+    ).to_dict()
+
+
 def get_ssm_parameter(parameter_name: str) -> str:
     """Fetch parameter from SSM Parameter Store."""
     region = os.environ.get(
@@ -269,7 +294,8 @@ invoked directly through the chat interface.
 
 ### FHIR Resource Generation Tools (Da Vinci PAS Alignment)
 - **build_pas_claim_bundle**: Build a FHIR PAS Bundle containing a Claim (use=preauthorization) and all referenced supporting resources. Call after clinical data assembly.
-- **generate_claim_response**: Generate a FHIR ClaimResponse from the authorization decision. Call after making the approval/denial/pend decision.
+- **assess_decision_reliability**: Apply deterministic evidence-quality and human-review gates immediately before final decisioning.
+- **generate_claim_response**: Generate a FHIR ClaimResponse from the authorization decision. Call only after the reliability gate passes, or use a pended decision when human review is required.
 
 ## Prior Authorization Workflow
 
@@ -307,11 +333,14 @@ When processing a prior authorization request, follow these steps:
 - **Call build_pas_claim_bundle** with the patient, practitioner, coverage, insurer, service items (CPT/HCPCS codes with diagnosis links), supporting FHIR resources (Conditions, Observations, MedicationRequests), and priority level to produce the FHIR PAS Bundle
 - If the bundle has validation issues, report them to the provider
 
-### Step 6: Recommendation & Next Steps
+### Step 6: Reliability Gate, Recommendation & Next Steps
 - Summarize the authorization request
 - Indicate likelihood of approval based on clinical evidence vs payor criteria
-- Flag any missing documentation or potential issues
-- **Call generate_claim_response** with the Claim reference, patient reference, insurer reference, decision ("approved", "denied", or "pended"), and a human-readable disposition summarizing the rationale
+- Flag any missing documentation, contradictions, low-confidence extraction, or safety issues
+- **Call assess_decision_reliability** before creating the ClaimResponse. Required fields should include diagnosis, procedure_code, coverage, and payer_policy at minimum.
+- If safe_to_auto_decide is false, DO NOT automatically approve or deny. Use a **pended** decision and explicitly route the case to human review with the gate reasons.
+- If safe_to_auto_decide is true, proceed with the evidence-supported decision.
+- **Call generate_claim_response** with the Claim reference, patient reference, insurer reference, decision ("approved", "denied", or "pended"), and a human-readable disposition summarizing both the clinical rationale and reliability-gate outcome.
 - Include the generated FHIR ClaimResponse in your response
 - Provide the complete prior auth submission package (PAS Bundle + ClaimResponse)
 - Suggest next steps (submit electronically, fax, peer-to-peer review)
@@ -322,6 +351,8 @@ When processing a prior authorization request, follow these steps:
 - Be thorough in gathering clinical evidence to support medical necessity
 - Follow HIPAA guidelines — do not expose PHI unnecessarily
 - If clinical data is insufficient, clearly state what additional information is needed
+- Never convert missing or conflicting critical evidence into an automatic approval or denial; route it to human review
+- Keep the reliability gate deterministic and auditable; do not override a failed gate with model confidence alone
 - Provide structured, actionable responses with clear next steps
 
 ## Response Format
@@ -433,7 +464,12 @@ def create_prior_auth_agent(user_id: str, session_id: str) -> Agent:
         agent = Agent(
             name="PriorAuthorizationAgent",
             system_prompt=system_prompt,
-            tools=[gateway_client, build_pas_claim_bundle, generate_claim_response],
+            tools=[
+                gateway_client,
+                build_pas_claim_bundle,
+                assess_decision_reliability,
+                generate_claim_response,
+            ],
             model=bedrock_model,
             session_manager=session_manager,
             trace_attributes={
