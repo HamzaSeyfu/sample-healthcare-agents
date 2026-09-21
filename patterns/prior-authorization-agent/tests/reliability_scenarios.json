@@ -1,0 +1,38 @@
+[
+  {
+    "id": "clean_mri_case",
+    "expected": "auto_decide",
+    "required_fields": ["diagnosis", "procedure_code", "coverage", "payer_policy"],
+    "conflict_flags": [],
+    "evidence": [
+      {"field": "diagnosis", "present": true, "source_count": 2, "confidence": 0.98},
+      {"field": "procedure_code", "present": true, "source_count": 2, "confidence": 0.99},
+      {"field": "coverage", "present": true, "source_count": 2, "confidence": 0.97},
+      {"field": "payer_policy", "present": true, "source_count": 2, "confidence": 0.96}
+    ]
+  },
+  {
+    "id": "missing_policy",
+    "expected": "human_review",
+    "required_fields": ["diagnosis", "procedure_code", "coverage", "payer_policy"],
+    "conflict_flags": ["missing_policy"],
+    "evidence": [
+      {"field": "diagnosis", "present": true, "source_count": 2, "confidence": 0.98},
+      {"field": "procedure_code", "present": true, "source_count": 2, "confidence": 0.99},
+      {"field": "coverage", "present": true, "source_count": 1, "confidence": 0.94},
+      {"field": "payer_policy", "present": false, "source_count": 0, "confidence": 0.0}
+    ]
+  },
+  {
+    "id": "conflicting_identity",
+    "expected": "human_review",
+    "required_fields": ["diagnosis", "procedure_code", "coverage", "payer_policy"],
+    "conflict_flags": ["conflicting_identity"],
+    "evidence": [
+      {"field": "diagnosis", "present": true, "source_count": 2, "confidence": 0.91},
+      {"field": "procedure_code", "present": true, "source_count": 2, "confidence": 0.95},
+      {"field": "coverage", "present": true, "source_count": 2, "confidence": 0.92},
+      {"field": "payer_policy", "present": true, "source_count": 2, "confidence": 0.90}
+    ]
+  }
+]
