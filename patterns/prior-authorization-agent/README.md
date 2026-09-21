@@ -10,8 +10,9 @@ Given a procedure and patient, the agent:
 2. Retrieves patient clinical data from **HealthLake** (conditions, medications, observations, allergies) via Gateway MCP tools
 3. Assesses **medical necessity** by cross-referencing clinical evidence against payor-specific coverage criteria
 4. Assembles a **FHIR PAS Bundle** (`build_pas_claim_bundle`) containing the Claim (use=preauthorization) and all referenced supporting resources
-5. Generates a **FHIR ClaimResponse** (`generate_claim_response`) with the authorization decision (approved/denied/pended)
-6. Provides a structured summary with eligibility, clinical evidence, policy requirements, and next steps
+5. Applies a deterministic **reliability gate** (`assess_decision_reliability`) to decide whether automation is safe or human review is required
+6. Generates a **FHIR ClaimResponse** (`generate_claim_response`) with the authorization decision (approved/denied/pended)
+7. Provides a structured summary with eligibility, clinical evidence, policy requirements, reliability status, and next steps
 
 ## Example prompts
 
@@ -112,3 +113,13 @@ curl -X POST http://localhost:8080/invoke \
 - **Bedrock Guardrails** — prompt attack filtering (HIGH), healthcare denied topics, PII output filtering for HIPAA identifiers
 - **Input sanitization** — all user prompts are sanitized via `prompt_sanitizer.py` before reaching the model
 - **PHI logging** — user query content is never logged (only length); access tokens are not logged
+
+## Reliability & human-review gate
+
+This fork adds a deterministic reliability layer before final prior-authorization decisioning.
+
+The gate scores required-evidence completeness, extraction confidence, and cross-source corroboration, while enforcing hard stops for critical conditions such as missing coverage, missing payer policy, conflicting identity, conflicting policy, and detected prompt injection.
+
+When the gate fails, the workflow must produce a **pended** authorization and route the case to human review rather than automatically approving or denying it.
+
+See [RELIABILITY_GATES.md](RELIABILITY_GATES.md) for the design and `tests/benchmark_reliability.py` for the synthetic benchmark.
