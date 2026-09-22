@@ -129,3 +129,12 @@ See [RELIABILITY_GATES.md](RELIABILITY_GATES.md) for the design and `tests/bench
 A browser-based demo is available in [`demo/`](demo/). It uses synthetic cases only and mirrors the deterministic reliability policy from `reliability_gate.py`.
 
 It includes clean, missing-coverage, conflicting-policy, prompt-injection, and low-confidence scenarios, plus editable evidence confidence/source counts and structured JSON output.
+
+
+## Live demo
+
+A public interactive demo of the reliability and human-review gate is available here:
+
+**https://prior-auth-reliability-demo.vercel.app/**
+
+For a 30-second walkthrough and recommended scenarios, see [DEMO_GUIDE.md](DEMO_GUIDE.md).
