@@ -1,6 +1,10 @@
-name: Deploy Prior Auth Demo to Pages
+name: Prior Auth Demo Validation
 
 on:
+  pull_request:
+    paths:
+      - 'patterns/prior-authorization-agent/demo/**'
+      - '.github/workflows/prior-auth-demo-pages.yml'
   push:
     branches: [main, feature/prior-auth-reliability-gates]
     paths:
@@ -8,29 +12,20 @@ on:
       - '.github/workflows/prior-auth-demo-pages.yml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
+# The public demo is deployed through Vercel. Keep this workflow as a cheap,
+# provider-neutral validation that the static bundle contains its entry point
+# and referenced assets. This avoids requiring GitHub Pages repository settings.
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  validate-static-demo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: patterns/prior-authorization-agent/demo
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Validate static demo bundle
+        run: |
+          set -euo pipefail
+          demo=patterns/prior-authorization-agent/demo
+          test -s "$demo/index.html"
+          test -s "$demo/styles.css"
+          test -s "$demo/app.js"
+          grep -q 'styles.css' "$demo/index.html"
+          grep -q 'app.js' "$demo/index.html"
