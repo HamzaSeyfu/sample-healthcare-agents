@@ -15,13 +15,15 @@ BASE_EVIDENCE = [
     {"field": "coverage", "present": True, "source_count": 2, "confidence": 0.97},
     {"field": "payer_policy", "present": True, "source_count": 2, "confidence": 0.96},
 ]
+REQUIRED = ["diagnosis", "procedure_code", "coverage", "payer_policy"]
+
+
+def assess(evidence=BASE_EVIDENCE, **kwargs):
+    return assess_reliability(evidence_items=evidence, required_fields=REQUIRED, **kwargs)
 
 
 def test_high_quality_case_can_auto_decide():
-    result = assess_reliability(
-        evidence_items=BASE_EVIDENCE,
-        required_fields=["diagnosis", "procedure_code", "coverage", "payer_policy"],
-    )
+    result = assess()
     assert result.safe_to_auto_decide is True
     assert result.score >= 0.80
 
@@ -32,31 +34,51 @@ def test_missing_coverage_forces_human_review():
         if item["field"] == "coverage":
             item["present"] = False
 
-    result = assess_reliability(
-        evidence_items=evidence,
-        required_fields=["diagnosis", "procedure_code", "coverage", "payer_policy"],
-    )
+    result = assess(evidence)
     assert result.safe_to_auto_decide is False
     assert "coverage" in result.missing_fields
 
 
 def test_prompt_injection_flag_forces_human_review():
-    result = assess_reliability(
-        evidence_items=BASE_EVIDENCE,
-        required_fields=["diagnosis", "procedure_code", "coverage", "payer_policy"],
-        conflict_flags=["prompt_injection_detected"],
-    )
+    result = assess(conflict_flags=["prompt_injection_detected"])
     assert result.safe_to_auto_decide is False
 
 
 def test_low_confidence_case_is_escalated():
-    weak = [
-        {**item, "confidence": 0.30, "source_count": 1}
-        for item in BASE_EVIDENCE
-    ]
-    result = assess_reliability(
-        evidence_items=weak,
-        required_fields=["diagnosis", "procedure_code", "coverage", "payer_policy"],
-    )
+    weak = [{**item, "confidence": 0.30, "source_count": 1} for item in BASE_EVIDENCE]
+    result = assess(weak)
     assert result.safe_to_auto_decide is False
     assert result.score < 0.80
+
+
+def test_nan_confidence_fails_closed():
+    evidence = [dict(item) for item in BASE_EVIDENCE]
+    evidence[0]["confidence"] = float("nan")
+    result = assess(evidence)
+    assert result.safe_to_auto_decide is False
+    assert result.score == result.score  # score itself must never become NaN
+    assert any("Malformed reliability evidence: diagnosis" in r for r in result.reasons)
+
+
+def test_infinite_confidence_fails_closed():
+    evidence = [dict(item) for item in BASE_EVIDENCE]
+    evidence[1]["confidence"] = float("inf")
+    result = assess(evidence)
+    assert result.safe_to_auto_decide is False
+    assert any("Malformed reliability evidence: procedure_code" in r for r in result.reasons)
+
+
+def test_non_numeric_confidence_fails_closed_instead_of_crashing():
+    evidence = [dict(item) for item in BASE_EVIDENCE]
+    evidence[2]["confidence"] = "high"
+    result = assess(evidence)
+    assert result.safe_to_auto_decide is False
+    assert any("Malformed reliability evidence: coverage" in r for r in result.reasons)
+
+
+def test_negative_source_count_fails_closed():
+    evidence = [dict(item) for item in BASE_EVIDENCE]
+    evidence[3]["source_count"] = -1
+    result = assess(evidence)
+    assert result.safe_to_auto_decide is False
+    assert any("Malformed reliability evidence: payer_policy" in r for r in result.reasons)
