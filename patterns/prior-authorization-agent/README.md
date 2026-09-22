@@ -123,3 +123,9 @@ The gate scores required-evidence completeness, extraction confidence, and cross
 When the gate fails, the workflow must produce a **pended** authorization and route the case to human review rather than automatically approving or denying it.
 
 See [RELIABILITY_GATES.md](RELIABILITY_GATES.md) for the design and `tests/benchmark_reliability.py` for the synthetic benchmark.
+
+## Interactive demo
+
+A browser-based demo is available in [`demo/`](demo/). It uses synthetic cases only and mirrors the deterministic reliability policy from `reliability_gate.py`.
+
+It includes clean, missing-coverage, conflicting-policy, prompt-injection, and low-confidence scenarios, plus editable evidence confidence/source counts and structured JSON output.
