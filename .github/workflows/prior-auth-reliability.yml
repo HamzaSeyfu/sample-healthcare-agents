@@ -4,11 +4,14 @@ on:
   pull_request:
     paths:
       - 'patterns/prior-authorization-agent/**'
+      - '.github/workflows/prior-auth-reliability.yml'
   push:
     branches:
+      - main
       - feature/prior-auth-reliability-gates
     paths:
       - 'patterns/prior-authorization-agent/**'
+      - '.github/workflows/prior-auth-reliability.yml'
 
 jobs:
   reliability-tests:
