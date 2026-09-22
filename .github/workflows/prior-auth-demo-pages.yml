@@ -2,7 +2,7 @@ name: Deploy Prior Auth Demo to Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, feature/prior-auth-reliability-gates]
     paths:
       - 'patterns/prior-authorization-agent/demo/**'
       - '.github/workflows/prior-auth-demo-pages.yml'
