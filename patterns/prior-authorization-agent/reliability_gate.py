@@ -10,6 +10,7 @@ a decision and decides whether automation is safe enough to proceed.
 """
 
 from dataclasses import dataclass, asdict
+import math
 from typing import Iterable
 
 
@@ -42,6 +43,30 @@ class ReliabilityAssessment:
         return asdict(self)
 
 
+def _bounded_confidence(value: object) -> tuple[float, bool]:
+    """Return a finite confidence in [0, 1] and whether input was valid."""
+    try:
+        confidence = float(value)
+    except (TypeError, ValueError):
+        return 0.0, False
+    if not math.isfinite(confidence) or not 0.0 <= confidence <= 1.0:
+        return 0.0, False
+    return confidence, True
+
+
+def _source_count(value: object) -> tuple[int, bool]:
+    """Return a non-negative source count and whether input was valid."""
+    if isinstance(value, bool):
+        return 0, False
+    try:
+        count = int(value)
+    except (TypeError, ValueError, OverflowError):
+        return 0, False
+    if count < 0:
+        return 0, False
+    return count, True
+
+
 def assess_reliability(
     *,
     evidence_items: Iterable[dict],
@@ -55,11 +80,11 @@ def assess_reliability(
     Each evidence item may contain:
       - field: logical field name
       - present: bool
-      - source_count: int
-      - confidence: float in [0, 1]
+      - source_count: non-negative int
+      - confidence: finite float in [0, 1]
 
     The score combines completeness, confidence, and corroboration. Any
-    critical conflict forces human review regardless of score.
+    critical conflict or malformed decision evidence forces human review.
     """
 
     evidence = list(evidence_items)
@@ -76,19 +101,21 @@ def assess_reliability(
     confidence_values = []
     corroboration_values = []
     low_confidence_fields = []
+    malformed_fields = []
 
     for field in required:
         item = by_field.get(field, {})
         if not item.get("present", False):
             continue
 
-        confidence = float(item.get("confidence", 0.0))
-        confidence = max(0.0, min(1.0, confidence))
+        confidence, confidence_valid = _bounded_confidence(item.get("confidence", 0.0))
+        source_count, source_count_valid = _source_count(item.get("source_count", 1))
+        if not confidence_valid or not source_count_valid:
+            malformed_fields.append(field)
+
         confidence_values.append(confidence)
         if confidence < min_field_confidence:
             low_confidence_fields.append(field)
-
-        source_count = int(item.get("source_count", 1))
         corroboration_values.append(1.0 if source_count >= 2 else 0.5)
 
     completeness = 1.0 if not required else (len(required) - len(missing)) / len(required)
@@ -101,8 +128,6 @@ def assess_reliability(
         else 0.0
     )
 
-    # Weighted for safety: missing required evidence hurts more than weak
-    # corroboration, while model/source confidence still matters materially.
     score = round(
         0.50 * completeness + 0.35 * mean_confidence + 0.15 * mean_corroboration,
         4,
@@ -111,15 +136,14 @@ def assess_reliability(
     reasons: list[str] = []
     critical_missing = sorted(set(missing) & DECISION_CRITICAL_FIELDS)
     critical_flags = sorted(set(flags) & CRITICAL_FLAGS)
+    malformed_fields = sorted(set(malformed_fields))
 
     if critical_missing:
-        reasons.append(
-            "Critical evidence missing: " + ", ".join(critical_missing)
-        )
+        reasons.append("Critical evidence missing: " + ", ".join(critical_missing))
     if critical_flags:
-        reasons.append(
-            "Critical reliability flags: " + ", ".join(critical_flags)
-        )
+        reasons.append("Critical reliability flags: " + ", ".join(critical_flags))
+    if malformed_fields:
+        reasons.append("Malformed reliability evidence: " + ", ".join(malformed_fields))
     if low_confidence_fields:
         reasons.append(
             "Low-confidence critical evidence: " + ", ".join(sorted(low_confidence_fields))
@@ -132,6 +156,7 @@ def assess_reliability(
     safe = (
         not critical_missing
         and not critical_flags
+        and not malformed_fields
         and not low_confidence_fields
         and score >= min_score
     )
