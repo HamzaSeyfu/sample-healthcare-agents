@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prior Authorization Reliability Gate</title>
+  <meta name="description" content="Interactive portfolio demo of deterministic reliability gates for AI-assisted healthcare prior authorization." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AWS Healthcare Agents · Portfolio Contribution</p>
+        <h1>Prior Authorization Reliability Gate</h1>
+        <p class="lede">
+          A deterministic safety layer that decides whether an AI-assisted prior authorization
+          case can proceed automatically or must be escalated to human review.
+        </p>
+      </div>
+      <div class="badge">Synthetic data only</div>
+    </header>
+
+    <section class="notice">
+      <strong>Demo scope:</strong> this interface runs the same reliability policy as the Python contribution in this fork.
+      It does not make clinical decisions and is not intended for real patient data.
+    </section>
+
+    <section class="grid two">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <span class="kicker">1 · Scenario</span>
+            <h2>Choose a case</h2>
+          </div>
+          <select id="scenarioSelect" aria-label="Scenario"></select>
+        </div>
+        <p id="scenarioDescription" class="muted"></p>
+
+        <div id="evidenceEditor" class="evidence-list"></div>
+
+        <div class="flags">
+          <span class="kicker">Critical flags</span>
+          <div id="flagList" class="flag-list"></div>
+        </div>
+
+        <div class="threshold-row">
+          <label for="threshold">Automation threshold</label>
+          <div class="threshold-control">
+            <input id="threshold" type="range" min="0.60" max="0.95" step="0.01" value="0.80" />
+            <output id="thresholdValue">0.80</output>
+          </div>
+        </div>
+
+        <button id="evaluateBtn" class="primary">Evaluate reliability</button>
+      </article>
+
+      <article class="panel result-panel">
+        <span class="kicker">2 · Reliability decision</span>
+        <div id="decisionPill" class="decision neutral">Waiting for evaluation</div>
+
+        <div class="score-block">
+          <div class="score-line">
+            <span>Reliability score</span>
+            <strong id="scoreValue">—</strong>
+          </div>
+          <div class="meter"><div id="scoreBar"></div></div>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric"><span>Completeness</span><strong id="completenessValue">—</strong></div>
+          <div class="metric"><span>Mean confidence</span><strong id="confidenceValue">—</strong></div>
+          <div class="metric"><span>Corroboration</span><strong id="corroborationValue">—</strong></div>
+          <div class="metric"><span>Threshold</span><strong id="thresholdMetric">0.80</strong></div>
+        </div>
+
+        <div class="reason-box">
+          <h3>Decision trace</h3>
+          <ul id="reasonList"><li>Run an evaluation to see the audit trail.</li></ul>
+        </div>
+
+        <div class="output-box">
+          <div class="output-heading">
+            <h3>Structured output</h3>
+            <button id="copyBtn" class="secondary">Copy JSON</button>
+          </div>
+          <pre id="jsonOutput">{}</pre>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel architecture">
+      <span class="kicker">Design</span>
+      <h2>Where the gate sits</h2>
+      <div class="flow" aria-label="Architecture flow">
+        <div>Clinical + payer evidence</div><span>→</span>
+        <div>AI-assisted extraction</div><span>→</span>
+        <div class="focus">Deterministic reliability gate</div><span>→</span>
+        <div>Auto decision <em>or</em> human review</div><span>→</span>
+        <div>FHIR ClaimResponse</div>
+      </div>
+      <p class="muted">
+        The gate is intentionally deterministic: missing critical evidence, explicit conflicts,
+        prompt-injection signals, or low-confidence required fields cannot be overridden by model confidence.
+      </p>
+    </section>
+
+    <footer>
+      <span>Built as an open-source contribution to <code>aws-samples/sample-healthcare-agents</code>.</span>
+      <a href="../RELIABILITY_GATES.md">Read the technical design</a>
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
