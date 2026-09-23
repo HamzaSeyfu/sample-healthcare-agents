@@ -55,16 +55,16 @@ def _bounded_confidence(value: object) -> tuple[float, bool]:
 
 
 def _source_count(value: object) -> tuple[int, bool]:
-    """Return a non-negative source count and whether input was valid."""
+    """Return a non-negative integer source count and whether input was valid."""
     if isinstance(value, bool):
         return 0, False
     try:
-        count = int(value)
+        numeric = float(value)
     except (TypeError, ValueError, OverflowError):
         return 0, False
-    if count < 0:
+    if not math.isfinite(numeric) or numeric < 0 or not numeric.is_integer():
         return 0, False
-    return count, True
+    return int(numeric), True
 
 
 def assess_reliability(
@@ -83,6 +83,10 @@ def assess_reliability(
       - source_count: non-negative int
       - confidence: finite float in [0, 1]
 
+    One normalized evidence item is expected per logical field. Multiple raw
+    sources should be represented through ``source_count`` after upstream
+    reconciliation. Duplicate required fields are ambiguous and fail closed.
+
     The score combines completeness, confidence, and corroboration. Any
     critical conflict or malformed decision evidence forces human review.
     """
@@ -91,7 +95,18 @@ def assess_reliability(
     required = list(dict.fromkeys(required_fields))
     flags = sorted(set(conflict_flags))
 
-    by_field = {item.get("field"): item for item in evidence if item.get("field")}
+    items_by_field: dict[str, list[dict]] = {}
+    for item in evidence:
+        field = item.get("field")
+        if field:
+            items_by_field.setdefault(field, []).append(item)
+
+    duplicate_fields = sorted(
+        field for field in required if len(items_by_field.get(field, [])) > 1
+    )
+    # Keep scoring deterministic, but never allow a duplicate required field to
+    # pass automation. Upstream should reconcile multiple sources first.
+    by_field = {field: items[0] for field, items in items_by_field.items()}
     missing = [
         field
         for field in required
@@ -142,6 +157,8 @@ def assess_reliability(
         reasons.append("Critical evidence missing: " + ", ".join(critical_missing))
     if critical_flags:
         reasons.append("Critical reliability flags: " + ", ".join(critical_flags))
+    if duplicate_fields:
+        reasons.append("Ambiguous duplicate evidence: " + ", ".join(duplicate_fields))
     if malformed_fields:
         reasons.append("Malformed reliability evidence: " + ", ".join(malformed_fields))
     if low_confidence_fields:
@@ -156,6 +173,7 @@ def assess_reliability(
     safe = (
         not critical_missing
         and not critical_flags
+        and not duplicate_fields
         and not malformed_fields
         and not low_confidence_fields
         and score >= min_score
