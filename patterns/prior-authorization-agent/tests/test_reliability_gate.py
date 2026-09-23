@@ -82,3 +82,39 @@ def test_negative_source_count_fails_closed():
     result = assess(evidence)
     assert result.safe_to_auto_decide is False
     assert any("Malformed reliability evidence: payer_policy" in r for r in result.reasons)
+
+
+def test_fractional_source_count_fails_closed_instead_of_truncating():
+    evidence = [dict(item) for item in BASE_EVIDENCE]
+    evidence[0]["source_count"] = 1.5
+    result = assess(evidence)
+    assert result.safe_to_auto_decide is False
+    assert any("Malformed reliability evidence: diagnosis" in r for r in result.reasons)
+
+
+def test_duplicate_required_field_fails_closed():
+    evidence = [dict(item) for item in BASE_EVIDENCE]
+    evidence.append({
+        "field": "coverage",
+        "present": False,
+        "source_count": 0,
+        "confidence": 0.0,
+    })
+    result = assess(evidence)
+    assert result.safe_to_auto_decide is False
+    assert any("Ambiguous duplicate evidence: coverage" in r for r in result.reasons)
+
+
+def test_duplicate_field_order_cannot_change_automation_decision():
+    conflicting_duplicate = {
+        "field": "payer_policy",
+        "present": False,
+        "source_count": 0,
+        "confidence": 0.0,
+    }
+    first = assess([conflicting_duplicate, *[dict(item) for item in BASE_EVIDENCE]])
+    last = assess([*[dict(item) for item in BASE_EVIDENCE], conflicting_duplicate])
+    assert first.safe_to_auto_decide is False
+    assert last.safe_to_auto_decide is False
+    assert any("Ambiguous duplicate evidence: payer_policy" in r for r in first.reasons)
+    assert any("Ambiguous duplicate evidence: payer_policy" in r for r in last.reasons)
