@@ -12,8 +12,8 @@ FHIR PAS resources. This layer answers a different question:
 ## Why this matters
 
 An AI system can produce a syntactically valid decision while still relying on
-missing, contradictory, weak, or adversarial evidence. In healthcare workflows,
-that distinction matters more than raw response quality.
+missing, contradictory, weak, malformed, or adversarial evidence. In healthcare
+workflows, that distinction matters more than raw response quality.
 
 The gate scores:
 
@@ -22,6 +22,19 @@ The gate scores:
 - corroboration across multiple sources;
 - critical conflicts such as identity mismatch or contradictory payer policy;
 - explicit safety signals such as detected prompt injection.
+
+## Normalized evidence contract
+
+The gate expects **one normalized item per logical field**. Each present item
+contains a finite confidence in `[0, 1]` and a non-negative integer
+`source_count`. Multiple underlying records or documents should be reconciled
+upstream and represented through `source_count`; they should not be passed as
+multiple items with the same logical field name.
+
+This distinction is deliberate. Silently choosing the first or last duplicate
+could make an automation decision depend on input ordering and hide conflicting
+evidence. Duplicate required fields therefore fail closed and are routed to
+human review. Malformed confidence/source-count values also fail closed.
 
 ## Output
 
@@ -54,6 +67,11 @@ The gate is intentionally deterministic. Model-generated reasoning can still be
 used elsewhere in the workflow, but escalation policy should remain explicit,
 testable, and auditable.
 
+Hard safety conditions override the aggregate score. A high score cannot make a
+case eligible for automatic decisioning when critical evidence is missing,
+malformed, duplicated ambiguously, below the field confidence floor, or carries
+a critical reliability flag.
+
 ## Test coverage
 
 The included tests cover:
@@ -61,7 +79,10 @@ The included tests cover:
 - high-quality evidence that can proceed automatically;
 - missing critical coverage evidence;
 - prompt-injection safety flags;
-- low-confidence evidence requiring escalation.
+- low-confidence evidence requiring escalation;
+- non-finite and non-numeric confidence values;
+- negative and fractional source counts;
+- ambiguous duplicate required fields, including order independence.
 
 The synthetic scenarios in `tests/reliability_scenarios.json` provide a small
 seed dataset for future selective-accuracy and abstention experiments.
