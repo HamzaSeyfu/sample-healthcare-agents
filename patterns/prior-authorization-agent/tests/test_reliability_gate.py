@@ -118,3 +118,35 @@ def test_duplicate_field_order_cannot_change_automation_decision():
     assert last.safe_to_auto_decide is False
     assert any("Ambiguous duplicate evidence: payer_policy" in r for r in first.reasons)
     assert any("Ambiguous duplicate evidence: payer_policy" in r for r in last.reasons)
+
+
+def test_negative_min_score_cannot_disable_global_threshold():
+    result = assess(min_score=-1)
+    assert result.safe_to_auto_decide is False
+    assert any("Invalid reliability configuration: min_score" in r for r in result.reasons)
+
+
+def test_nan_min_score_fails_closed_with_auditable_reason():
+    result = assess(min_score=float("nan"))
+    assert result.safe_to_auto_decide is False
+    assert any("Invalid reliability configuration: min_score" in r for r in result.reasons)
+
+
+def test_invalid_field_confidence_floor_cannot_weaken_guardrail():
+    weak = [dict(item) for item in BASE_EVIDENCE]
+    weak[0]["confidence"] = 0.10
+    result = assess(weak, min_field_confidence=-1)
+    assert result.safe_to_auto_decide is False
+    assert any(
+        "Invalid reliability configuration: min_field_confidence" in r
+        for r in result.reasons
+    )
+
+
+def test_thresholds_above_one_fail_closed():
+    result = assess(min_score=1.01, min_field_confidence=1.01)
+    assert result.safe_to_auto_decide is False
+    assert any(
+        "Invalid reliability configuration: min_score, min_field_confidence" in r
+        for r in result.reasons
+    )
