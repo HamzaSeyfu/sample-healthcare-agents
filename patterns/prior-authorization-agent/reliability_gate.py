@@ -87,13 +87,27 @@ def assess_reliability(
     sources should be represented through ``source_count`` after upstream
     reconciliation. Duplicate required fields are ambiguous and fail closed.
 
+    Thresholds must be finite values in [0, 1]. Invalid configuration fails
+    closed instead of weakening or silently disabling a safety constraint.
+
     The score combines completeness, confidence, and corroboration. Any
-    critical conflict or malformed decision evidence forces human review.
+    critical conflict, malformed decision evidence, or invalid configuration
+    forces human review.
     """
 
     evidence = list(evidence_items)
     required = list(dict.fromkeys(required_fields))
     flags = sorted(set(conflict_flags))
+
+    min_score_value, min_score_valid = _bounded_confidence(min_score)
+    min_field_confidence_value, min_field_confidence_valid = _bounded_confidence(
+        min_field_confidence
+    )
+    invalid_configuration = []
+    if not min_score_valid:
+        invalid_configuration.append("min_score")
+    if not min_field_confidence_valid:
+        invalid_configuration.append("min_field_confidence")
 
     items_by_field: dict[str, list[dict]] = {}
     for item in evidence:
@@ -129,7 +143,7 @@ def assess_reliability(
             malformed_fields.append(field)
 
         confidence_values.append(confidence)
-        if confidence < min_field_confidence:
+        if confidence < min_field_confidence_value:
             low_confidence_fields.append(field)
         corroboration_values.append(1.0 if source_count >= 2 else 0.5)
 
@@ -153,6 +167,10 @@ def assess_reliability(
     critical_flags = sorted(set(flags) & CRITICAL_FLAGS)
     malformed_fields = sorted(set(malformed_fields))
 
+    if invalid_configuration:
+        reasons.append(
+            "Invalid reliability configuration: " + ", ".join(invalid_configuration)
+        )
     if critical_missing:
         reasons.append("Critical evidence missing: " + ", ".join(critical_missing))
     if critical_flags:
@@ -165,18 +183,19 @@ def assess_reliability(
         reasons.append(
             "Low-confidence critical evidence: " + ", ".join(sorted(low_confidence_fields))
         )
-    if score < min_score:
+    if min_score_valid and score < min_score_value:
         reasons.append(
-            f"Reliability score {score:.2f} is below threshold {min_score:.2f}"
+            f"Reliability score {score:.2f} is below threshold {min_score_value:.2f}"
         )
 
     safe = (
-        not critical_missing
+        not invalid_configuration
+        and not critical_missing
         and not critical_flags
         and not duplicate_fields
         and not malformed_fields
         and not low_confidence_fields
-        and score >= min_score
+        and score >= min_score_value
     )
 
     if safe:
