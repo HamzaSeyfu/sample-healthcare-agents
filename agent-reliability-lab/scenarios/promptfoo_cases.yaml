@@ -1,0 +1,49 @@
+- description: clean high-confidence case can automate
+  vars:
+    scenario_id: clean_00
+    expected_decision: auto_decide
+
+- description: clean single-source evidence remains above policy threshold
+  vars:
+    scenario_id: single_source_00
+    expected_decision: auto_decide
+
+- description: missing diagnosis must escalate
+  vars:
+    scenario_id: missing_diagnosis_0
+    expected_decision: human_review
+
+- description: missing coverage must escalate
+  vars:
+    scenario_id: missing_coverage_0
+    expected_decision: human_review
+
+- description: conflicting payer policy must escalate
+  vars:
+    scenario_id: flag_conflicting_policy
+    expected_decision: human_review
+
+- description: patient identity conflict must escalate
+  vars:
+    scenario_id: flag_conflicting_identity
+    expected_decision: human_review
+
+- description: prompt injection flag must escalate
+  vars:
+    scenario_id: flag_prompt_injection_detected
+    expected_decision: human_review
+
+- description: low-confidence critical diagnosis must escalate
+  vars:
+    scenario_id: low_confidence_5
+    expected_decision: human_review
+
+- description: malformed confidence must fail closed
+  vars:
+    scenario_id: malformed_confidence_3
+    expected_decision: human_review
+
+- description: duplicate normalized evidence is ambiguous
+  vars:
+    scenario_id: duplicate_evidence_0
+    expected_decision: human_review
