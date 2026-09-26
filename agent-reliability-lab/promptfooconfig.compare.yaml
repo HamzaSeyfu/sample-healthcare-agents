@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Baseline versus reliability-gate comparison
+
+prompts:
+  - "{{scenario_id}}"
+
+providers:
+  - id: file://providers/prior_auth_provider.py
+    label: score-only-baseline
+    config:
+      mode: baseline
+  - id: file://providers/prior_auth_provider.py
+    label: reliability-gate-candidate
+    config:
+      mode: candidate
+
+tests:
+  - file://scenarios/promptfoo_cases.yaml
