@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Reliability Lab</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#071019;color:#edf5fb}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#173a53 0,#071019 38%);min-height:100vh}.wrap{max-width:1180px;margin:auto;padding:50px 24px 70px}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#72d5ff;font-weight:800}h1{font-size:50px;line-height:1.02;margin:10px 0 12px}p{color:#a8bdcb;line-height:1.55}.hero{display:flex;justify-content:space-between;gap:28px;align-items:end}.badge{border:1px solid #2b607c;background:#0d2130;border-radius:999px;padding:9px 13px;color:#bfeaff;font-size:13px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:28px 0}.card{background:rgba(8,26,39,.9);border:1px solid #1e4359;border-radius:18px;padding:19px;box-shadow:0 18px 60px rgba(0,0,0,.22)}.card strong{font-size:30px;display:block;margin:5px 0}.card span{font-size:12px;color:#8da7b7}.good{color:#70e0af}.bad{color:#ff8f94}.panel{background:rgba(8,25,38,.88);border:1px solid #1e4359;border-radius:18px;padding:22px;margin-top:16px}.comparison{display:grid;grid-template-columns:1fr 1fr;gap:18px}.bar{height:9px;background:#102b3d;border-radius:999px;overflow:hidden;margin-top:9px}.fill{height:100%;background:#5dcdf8}.fill.goodfill{background:#66ddb1}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #18394d;vertical-align:top}th{font-size:11px;color:#7bd3f8;text-transform:uppercase;letter-spacing:.08em}select{background:#091d2b;color:#eaf5fb;border:1px solid #2b5a73;border-radius:10px;padding:10px 12px;width:100%}pre{white-space:pre-wrap;background:#06131d;border:1px solid #17394d;border-radius:12px;padding:16px;color:#cce6f5}.note{font-size:12px;color:#7994a5;margin-top:18px}@media(max-width:820px){h1{font-size:39px}.grid{grid-template-columns:1fr 1fr}.comparison{grid-template-columns:1fr}.hero{display:block}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow">AI evaluation · selective automation · regression engineering</div>
+      <h1>Agent Reliability Lab</h1>
+      <p>Can a high-confidence AI workflow still be unsafe to automate? This benchmark compares a score-only policy with a deterministic human-review gate on adversarial prior-authorization evidence.</p>
+    </div>
+    <div class="badge" id="gateBadge">Loading benchmark…</div>
+  </div>
+
+  <div class="grid">
+    <div class="card"><span>Candidate accuracy</span><strong class="good" id="accuracy">–</strong></div>
+    <div class="card"><span>Human-review recall</span><strong class="good" id="recall">–</strong></div>
+    <div class="card"><span>Unsafe auto-decisions</span><strong class="good" id="unsafe">–</strong></div>
+    <div class="card"><span>Benchmark scenarios</span><strong id="cases">–</strong></div>
+  </div>
+
+  <section class="panel">
+    <h2>Baseline vs candidate</h2>
+    <div class="comparison">
+      <div>
+        <h3>Score-only baseline</h3>
+        <p>Automates whenever aggregate completeness/confidence/corroboration crosses the threshold.</p>
+        <div>Accuracy <b id="bAcc"></b><div class="bar"><div class="fill" id="bAccBar"></div></div></div>
+        <div style="margin-top:14px">Human-review recall <b id="bRecall"></b><div class="bar"><div class="fill" id="bRecallBar"></div></div></div>
+        <p><span class="bad" id="bUnsafe"></span> unsafe automatic decisions.</p>
+      </div>
+      <div>
+        <h3>Reliability-gate candidate</h3>
+        <p>Adds explicit hard stops for critical conflicts, malformed evidence, ambiguity and low-confidence critical fields.</p>
+        <div>Accuracy <b id="cAcc"></b><div class="bar"><div class="fill goodfill" id="cAccBar"></div></div></div>
+        <div style="margin-top:14px">Human-review recall <b id="cRecall"></b><div class="bar"><div class="fill goodfill" id="cRecallBar"></div></div></div>
+        <p><span class="good" id="cUnsafe"></span> unsafe automatic decisions.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Replay a failure mode</h2>
+    <select id="caseSelect"></select>
+    <pre id="caseOutput"></pre>
+  </section>
+
+  <section class="panel">
+    <h2>Why this matters</h2>
+    <p>The interesting cases are the ones where the aggregate score is still high. A conflicting policy or prompt-injection signal can coexist with otherwise excellent evidence, so a score-only policy can look confident and still make the wrong automation decision.</p>
+    <p>This demo is a deterministic replay benchmark. Synthetic inputs are used deliberately so every recruiter, reviewer and CI run sees the same result without model keys or healthcare data.</p>
+  </section>
+
+  <div class="note">Synthetic data only · engineering demonstration · not clinical decision support.</div>
+</div>
+<script>
+const pct=x=>(x*100).toFixed(2)+'%';
+fetch('./results.json').then(r=>r.json()).then(d=>{
+  const b=d.baseline,c=d.candidate;
+  document.getElementById('gateBadge').textContent=d.quality_gate.pass?'QUALITY GATE · PASS':'QUALITY GATE · FAIL';
+  document.getElementById('accuracy').textContent=pct(c.accuracy);
+  document.getElementById('recall').textContent=pct(c.human_review_recall);
+  document.getElementById('unsafe').textContent=c.unsafe_auto_decisions;
+  document.getElementById('cases').textContent=c.cases;
+  [['bAcc',b.accuracy],['bRecall',b.human_review_recall],['cAcc',c.accuracy],['cRecall',c.human_review_recall]].forEach(([id,v])=>document.getElementById(id).textContent=pct(v));
+  document.getElementById('bAccBar').style.width=pct(b.accuracy); document.getElementById('bRecallBar').style.width=pct(b.human_review_recall);
+  document.getElementById('cAccBar').style.width=pct(c.accuracy); document.getElementById('cRecallBar').style.width=pct(c.human_review_recall);
+  document.getElementById('bUnsafe').textContent=b.unsafe_auto_decisions; document.getElementById('cUnsafe').textContent=c.unsafe_auto_decisions;
+  const sel=document.getElementById('caseSelect'),out=document.getElementById('caseOutput');
+  d.featured_cases.forEach((x,i)=>{const o=document.createElement('option');o.value=i;o.textContent=x.id+' · '+x.category;sel.appendChild(o)});
+  function render(){const x=d.featured_cases[Number(sel.value||0)];out.textContent=JSON.stringify(x,null,2)}
+  sel.onchange=render; render();
+}).catch(e=>{document.getElementById('gateBadge').textContent='RESULT LOAD ERROR';console.error(e)});
+</script>
+</body>
+</html>
