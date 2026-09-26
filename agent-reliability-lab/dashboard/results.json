@@ -52,7 +52,7 @@
       "expected": "human_review",
       "baseline": "auto_decide",
       "candidate": "human_review",
-      "candidate_score": 0.9746,
+      "candidate_score": 0.9641,
       "reason": "Low-confidence critical evidence: diagnosis"
     },
     {
