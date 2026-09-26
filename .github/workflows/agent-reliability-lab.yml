@@ -1,0 +1,58 @@
+name: Agent Reliability Lab
+
+on:
+  push:
+    branches:
+      - feature/agent-reliability-lab
+    paths:
+      - 'agent-reliability-lab/**'
+      - 'patterns/prior-authorization-agent/reliability_gate.py'
+      - '.github/workflows/agent-reliability-lab.yml'
+  pull_request:
+    paths:
+      - 'agent-reliability-lab/**'
+      - 'patterns/prior-authorization-agent/reliability_gate.py'
+      - '.github/workflows/agent-reliability-lab.yml'
+  workflow_dispatch:
+
+jobs:
+  reliability-regression:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run deterministic benchmark quality gate
+        run: |
+          python agent-reliability-lab/scripts/benchmark.py --check \
+            --write /tmp/reliability-results.json
+
+      - name: Run Python regression tests
+        run: |
+          python -m pip install pytest
+          pytest -q agent-reliability-lab/tests
+
+      - name: Run Promptfoo candidate evaluation
+        working-directory: agent-reliability-lab
+        run: |
+          npx --yes promptfoo@latest eval \
+            -c promptfooconfig.yaml \
+            --no-cache \
+            --output /tmp/promptfoo-results.json
+
+      - name: Upload evaluation artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-reliability-results
+          path: |
+            /tmp/reliability-results.json
+            /tmp/promptfoo-results.json
